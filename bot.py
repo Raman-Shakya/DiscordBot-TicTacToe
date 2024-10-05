@@ -25,9 +25,13 @@ async def on_message(message):
     if message.author == client.user:
         return
 
-    if message.content.startswith('play'):
+    if message.content == 'play':
         await message.channel.send(board.setPlayer(message.author))
     
+    if message.content == 'players':
+        # await message.channel.send(board.showPlayers())
+        await message.channel.send(embed=board.showPlayers())
+
     if message.content.startswith('exit'):
         await message.channel.send(board.removePlayer(message.author))
 
@@ -43,6 +47,15 @@ async def on_message(message):
     if message.content == 'reset':
         await message.channel.send(board.reset())
 
+    if message.content == 'mode single':
+        await message.channel.send(board.modeSingle())
+
+    if message.content == 'mode multi':
+        await message.channel.send(board.modeMulti())
+
+    if message.content == 'help':
+        await message.channel.send(board.help())
+        
     # if message.content.startswith('$hello'):
     #     await message.channel.send('Hello!')
 
