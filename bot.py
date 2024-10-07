@@ -39,7 +39,7 @@ async def on_message(message):
         await message.channel.send(board.place(message.author, message.content.split()[1]))
     
     if message.content == 'show':
-        await message.channel.send(board.outputStr('show'))
+        await message.channel.send(embed=board.outputStr('show'))
 
     if message.content.startswith('config'):
         await message.channel.send(message.author)

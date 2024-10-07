@@ -30,16 +30,17 @@ class Board:
     """
 
     def showPlayers(self):
-        embedded = discord.Embed(title="Players", colour=discord.Colour.default())
+        out = ''
         for i, player in enumerate(self.playersID):
-            embedded.add_field(name=f'{self.players[i]}: {player.global_name}', value='')
-        # parsed = [f"> **{player.global_name}** is playing for {self.players[i]}" for i, player in enumerate(self.playersID)]
+            out += f'**{self.players[i]}**: {player.global_name}\n'
+
+        embedded = discord.Embed(
+            title="Players",
+            colour=[discord.Colour.red(), discord.Colour.yellow(), discord.Colour.blurple()][len(self.playersID)],
+            description=out
+        )
         if not self.playersID:
             embedded.set_footer(text="No players available")
-        # if parsed: 
-        #     embedded.add_field("\n".join(parsed))
-        # else:
-        #     embedded.add_field("No players available.")
         return embedded
 
 
@@ -81,7 +82,7 @@ class Board:
             self.board[y_pos][x_pos] = self.players[self.turn]
             self.turn = 1 - self.turn
             winner = self.winCheck()
-            out = f"Playing move {pos+1}\n{self.printBoard()}"
+            out = f"Playing move {pos+1}\n{self.getBoardString()}"
             # winner or draw check
             if winner or sum([sum([ele!=' ' for ele in row]) for row in self.board])==9:
                 self.started = False
@@ -115,16 +116,34 @@ class Board:
 
         
         
-
-    def printBoard(self):
+    def getBoardString(self):
         output = "```\n"
         for i in range(self.size):
             if i != 0:
                 output += '--- --- ---\n'
             output += f' {self.board[i][0]} | {self.board[i][1]} | {self.board[i][2]}\n'
-        if self.playersID:
-            output += f"\n**{self.playersID[self.turn].global_name}'s** turn to play for {self.players[self.turn]}```"
+        output += '```'
         return output
+
+
+    def printBoard(self):
+        out = ''
+        for i, player in enumerate(self.playersID):
+            out += f'**{self.players[i]}**: *{player.global_name}*\n'
+
+        output = self.getBoardString()
+        # if self.playersID:
+        #     output += f"```\n**{self.playersID[self.turn].global_name}'s** turn to play for {self.players[self.turn]}"
+        embed = discord.Embed(
+            title='Game',
+            colour=[discord.Colour.red(), discord.Colour.yellow(), discord.Colour.blurple()][len(self.playersID)],
+            description='**Mode**: '+['singleplayer', 'multiplayer'][self.single]
+        )
+        embed.add_field(name='Board', value=output, inline=True)
+        embed.add_field(name='Players', value=out or "No Players", inline=True)
+        if self.playersID:
+            embed.set_footer(text=f"{self.playersID[self.turn].display_name}'s turn")
+        return embed
     
     def reset(self):
         self.board = [[' ' for i in range(self.size)] for j in range(self.size)]
