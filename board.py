@@ -1,4 +1,5 @@
 import discord
+from genImg import drawBoard
 
 class Board:
     def __init__(self):
@@ -11,14 +12,14 @@ class Board:
         self.started = False
 
     def modeSingle(self):
-        if self.started: return "Cannot change mode after the game has started."
+        if self.started: return discord.Embed(title="Game Mode", description="Cannot change mode after the game has started.", colour=discord.Colour.red())
         self.single = True
-        return "Game mode set to single player."
+        return discord.Embed(title="Game Mode", description="Game mode set to single player.", colour=discord.Colour.blurple())
 
     def modeMulti(self):
-        if self.started: return "Cannot change mode after the game has started."
+        if self.started: return discord.Embed(title="Game Mode", description="Cannot change mode after the game has started.", colour=discord.Colour.red())
         self.single = False
-        return "Game mode set to multi player."
+        return discord.Embed(title="Game Mode", description="Game mode set to multi player.", colour=discord.Colour.blurple())
     
     """                                                                                                    
     ██████  ██       █████  ██    ██ ███████ ██████       ██████  ██████  ███    ██ ███████ ██  ██████  
@@ -65,12 +66,12 @@ class Board:
     """
 
     def place(self, author, pos):
-        if not pos.isnumeric(): return "Invalid move"
-        if int(pos) < 0 or int(pos) >= 10: return "Invalid move"
+        if not pos.isnumeric(): return discord.Embed(title='Error', description="Invalid move", colour=discord.Colour.red()), False
+        if int(pos) < 0 or int(pos) >= 10: return discord.Embed(title='Error', description="Invalid move", colour=discord.Colour.red()), False
         
         if not self.single:
-            if len(self.playersID) != 2: return "Players not selected."
-            if author != self.playersID[self.turn]: return "Not your turn"
+            if len(self.playersID) != 2: return discord.Embed(title='Error', description="Players not selected.", colour=discord.Colour.red()), False
+            if author != self.playersID[self.turn]: return discord.Embed(title='Error', description="Not your turn", colour=discord.Colour.red()), False
 
         if not self.started:
             self.started = True
@@ -78,22 +79,38 @@ class Board:
         pos = int(pos) - 1
         x_pos = pos % self.size
         y_pos = 2 - pos // self.size
+        out = ''
+        nextPlayer = ''
         if self.board[y_pos][x_pos] == ' ':
             self.board[y_pos][x_pos] = self.players[self.turn]
             self.turn = 1 - self.turn
             winner = self.winCheck()
-            out = f"Playing move {pos+1}\n{self.getBoardString()}"
+            out = f"Playing move {pos+1}\n"
             # winner or draw check
             if winner or sum([sum([ele!=' ' for ele in row]) for row in self.board])==9:
                 self.started = False
                 out += '\nGame Ended\n'
                 if winner:
-                    out += f"<@{self.playersID[self.players.index[winner]].id}> won the game 🥳"
+                    out += f"<@{self.playersID[self.players.index(winner)].id}> won the game 🥳"
                 else:
                     out += f"It was a draw!"
                 self.turn = 0
-            return out
-        return "Place occupied"
+            elif not self.single:
+                nextPlayer = f"<@{self.playersID[self.turn].id}>'s turn to play."
+        else:
+            out = "place occupied"
+            if not self.single:
+                nextPlayer = f"<@{self.playersID[self.turn].id}>'s turn to play."
+
+        drawBoard(self.board)
+        embed = discord.Embed(
+            title="Place",
+            description=out
+        )
+        embed.set_image(url="attachment://currentBoard.jpg")
+        if nextPlayer:
+            embed.add_field(name="Next", value=nextPlayer)
+        return embed, True
     
     def winCheck(self):
         def rowCheck(row):
@@ -132,6 +149,7 @@ class Board:
             out += f'**{self.players[i]}**: *{player.global_name}*\n'
 
         output = self.getBoardString()
+        drawBoard(self.board)
         # if self.playersID:
         #     output += f"```\n**{self.playersID[self.turn].global_name}'s** turn to play for {self.players[self.turn]}"
         embed = discord.Embed(
@@ -139,10 +157,14 @@ class Board:
             colour=[discord.Colour.red(), discord.Colour.yellow(), discord.Colour.blurple()][len(self.playersID)],
             description='**Mode**: '+['singleplayer', 'multiplayer'][self.single]
         )
-        embed.add_field(name='Board', value=output, inline=True)
+        embed.set_image(url="attachment://currentBoard.jpg")
+        # embed.add_field(name='Board', value=output, inline=True)
         embed.add_field(name='Players', value=out or "No Players", inline=True)
         if self.playersID:
-            embed.set_footer(text=f"{self.playersID[self.turn].display_name}'s turn")
+            if self.single:
+                embed.set_footer(text=f"{self.playersID[0].display_name}'s turn")
+            else:
+                embed.set_footer(text=f"{self.playersID[self.turn].display_name}'s turn")
         return embed
     
     def reset(self):
@@ -168,7 +190,7 @@ class Board:
             case 'players filled': return f"Cannot accept more players."
             case 'player left': return f"Player left"
             case 'no player': return f"No player in the list."
-            case 'reset': return f"Board resetted\n{self.printBoard()}"
+            case 'reset': return f"Board resetted\n{self.getBoardString()}"
 
     def help(self):
         out = """

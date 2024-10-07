@@ -36,10 +36,14 @@ async def on_message(message):
         await message.channel.send(board.removePlayer(message.author))
 
     if message.content.startswith('place'):
-        await message.channel.send(board.place(message.author, message.content.split()[1]))
+        embed, file = board.place(message.author, message.content.split()[1])
+        if file:
+            await message.channel.send(embed=embed, file=discord.File("./currentBoard.jpg"))
+        else:
+            await message.channel.send(embed=embed)
     
     if message.content == 'show':
-        await message.channel.send(embed=board.outputStr('show'))
+        await message.channel.send(embed=board.outputStr('show'), file=discord.File("./currentBoard.jpg"))
 
     if message.content.startswith('config'):
         await message.channel.send(message.author)
@@ -48,10 +52,10 @@ async def on_message(message):
         await message.channel.send(board.reset())
 
     if message.content == 'mode single':
-        await message.channel.send(board.modeSingle())
+        await message.channel.send(embed=board.modeSingle())
 
     if message.content == 'mode multi':
-        await message.channel.send(board.modeMulti())
+        await message.channel.send(embed=board.modeMulti())
 
     if message.content == 'help':
         await message.channel.send(embed = board.help())
