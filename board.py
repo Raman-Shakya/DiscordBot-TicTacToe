@@ -172,14 +172,19 @@ class Board:
 
     def help(self):
         out = """
-        **Help Commands**
-        *play*: Start playing the game
-        *exit*: Exit the game
-        *show*: Show board
-        *players*: Show players
-        *place*: Place your move
-        *mode multi*: Multiplayer
-        *mode single*: Play with bot
-        *reset*: Reset board
+**Play**: Start playing the game
+**Exit**: Exit the game
+**Show**: Show board
+**Players**: Show players
+**Place**: Place your move
+**Mode multi**: Multiplayer
+**Mode single**: Play with bot
+**Reset**: Reset board
         """
-        return out
+        embedded = discord.Embed(
+            title="Help Commands",
+            colour=[discord.Colour.red(), discord.Colour.yellow(), discord.Colour.blurple()][len(self.playersID)],
+            description=out
+        )
+        # embedded.add_field(name="Play",value="Start the game")
+        return embedded

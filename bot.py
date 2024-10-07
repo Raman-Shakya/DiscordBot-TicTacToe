@@ -54,7 +54,7 @@ async def on_message(message):
         await message.channel.send(board.modeMulti())
 
     if message.content == 'help':
-        await message.channel.send(board.help())
+        await message.channel.send(embed = board.help())
         
     # if message.content.startswith('$hello'):
     #     await message.channel.send('Hello!')
