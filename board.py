@@ -105,6 +105,7 @@ class Board:
         drawBoard(self.board)
         embed = discord.Embed(
             title="Place",
+            colour=discord.Colour.blurple(),
             description=out
         )
         embed.set_image(url="attachment://currentBoard.jpg")
