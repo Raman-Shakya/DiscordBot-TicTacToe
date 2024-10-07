@@ -153,9 +153,14 @@ class Board:
 
     def help(self):
         out = """
-        ***Help Commands***
-        *play*: start playing the game
-        *exit*: exit the game
-        *show player*: show players
+        **Help Commands**
+        *play*: Start playing the game
+        *exit*: Exit the game
+        *show*: Show board
+        *players*: Show players
+        *place*: Place your move
+        *mode multi*: Multiplayer
+        *mode single*: Play with bot
+        *reset*: Reset board
         """
         return out
