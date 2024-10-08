@@ -25,6 +25,8 @@ async def on_message(message):
     if message.author == client.user:
         return
 
+    message.content = message.content.lower()
+
     if message.content == 'play':
         await message.channel.send(board.setPlayer(message.author))
     
@@ -49,8 +51,12 @@ async def on_message(message):
         await message.channel.send(message.author)
 
     if message.content == 'reset':
-        await message.channel.send(board.reset())
-
+        embed, file = board.reset(message.author)
+        if file:
+            await message.channel.send(embed=embed, file=discord.File("./currentBoard.jpg"))
+        else:
+            await message.channel.send(embed=embed)
+        
     if message.content == 'mode single':
         await message.channel.send(embed=board.modeSingle())
 

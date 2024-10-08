@@ -40,5 +40,5 @@ def drawBoard(board):
     cv2.imwrite('./currentBoard.jpg', currentBoard)
     return currentBoard
 
-cv2.imshow("board", drawBoard(["OOX", "X O", " XX"]))
-cv2.waitKey(0)
+# cv2.imshow("board", drawBoard(["OOX", "X O", " XX"]))
+# cv2.waitKey(0)

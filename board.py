@@ -95,6 +95,7 @@ class Board:
                 else:
                     out += f"It was a draw!"
                 self.turn = 0
+                self.resetBoard()
             elif not self.single:
                 nextPlayer = f"<@{self.playersID[self.turn].id}>'s turn to play."
         else:
@@ -168,9 +169,17 @@ class Board:
                 embed.set_footer(text=f"{self.playersID[self.turn].display_name}'s turn")
         return embed
     
-    def reset(self):
+    def resetBoard(self):
         self.board = [[' ' for i in range(self.size)] for j in range(self.size)]
-        return self.outputStr('reset')
+
+    def reset(self, author):
+        if not author in self.playersID:
+            return discord.Embed(title="Not Permitted", description=f"<@{author.id}> is not a player.", colour=discord.Colour.red()), False
+        self.resetBoard()
+        drawBoard(self.board)
+        embed = discord.Embed(title="Board", description=f"<@{author.id}> resetted the board.", colour=discord.Colour.blurple())
+        embed.set_image(url="attachment://currentBoard.jpg")
+        return embed, True
 
     # def move(self, )
 
