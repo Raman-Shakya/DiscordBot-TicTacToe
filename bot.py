@@ -64,8 +64,24 @@ async def on_message(message):
         await message.channel.send(embed=board.modeMulti())
 
     if message.content == 'help':
-        await message.channel.send(embed = board.help())
-        
+        await message.channel.send(embed=board.help())
+    
+    if message.content == "imagetest":
+        await board.imageTest(message)
+
+    if message.content == 'change background':
+        await message.channel.send(embed=board.changeBackground(message))
+
+    if message.content == 'change x':
+        await message.channel.send(embed=board.changeXImage(message))
+
+    if message.content == 'change o':
+        await message.channel.send(embed=board.changeOImage(message))
+
+    if message.content == 'reset images':
+        await message.channel.send(embed=board.resetImages())
+
+
     # if message.content.startswith('$hello'):
     #     await message.channel.send('Hello!')
 

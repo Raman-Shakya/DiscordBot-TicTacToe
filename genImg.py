@@ -4,14 +4,35 @@ import numpy as np
 SIZE = 300
 SCALE = 0.8
 SIZE3 = int(SIZE/3*SCALE)
-BOARD = cv2.resize(cv2.imread('./assets/Board.png'), (SIZE, SIZE))
-X = cv2.resize(cv2.imread('./assets/X.png', cv2.IMREAD_UNCHANGED), (SIZE3, SIZE3))
-O = cv2.resize(cv2.imread('./assets/O.png', cv2.IMREAD_UNCHANGED), (SIZE3, SIZE3))
 
-X_color = X[:, :, :3]
-X_alpha = X[:, :, 3] / 255.0
-O_color = O[:, :, :3]
-O_alpha = O[:, :, 3] / 255.0
+BOARD = None
+X = None
+O = None
+X_color = None
+X_alpha = None
+O_color = None
+O_alpha = None
+
+def readImages():
+    global BOARD, X, O, X_color, X_alpha, O_color, O_alpha
+    BOARD = cv2.resize(cv2.imread('./assets/Board.png'), (SIZE, SIZE))
+    X = cv2.resize(cv2.imread('./assets/X.png', cv2.IMREAD_UNCHANGED), (SIZE3, SIZE3))
+    O = cv2.resize(cv2.imread('./assets/O.png', cv2.IMREAD_UNCHANGED), (SIZE3, SIZE3))
+
+    X_color = X[:, :, :3]
+    if X.shape[2] == 4: X_alpha = X[:, :, 3] / 255.0
+    else: X_alpha = np.ones(X_color.shape[:2], dtype=np.float32)
+    O_color = O[:, :, :3]
+    if O.shape[2] == 4: O_alpha = O[:, :, 3] / 255.0
+    else: O_alpha = np.ones(O_color.shape[:2], dtype=np.float32)
+
+
+
+def resetImages():
+    cv2.imwrite('./assets/Board.png', cv2.imread('./assets/BoardDefault.png'))
+    cv2.imwrite('./assets/X.png', cv2.imread('./assets/XDefault.png', cv2.IMREAD_UNCHANGED))
+    cv2.imwrite('./assets/O.png', cv2.imread('./assets/ODefault.png', cv2.IMREAD_UNCHANGED))
+    readImages()
 
 def putX(block):
     for c in range(0, 3):
@@ -40,5 +61,6 @@ def drawBoard(board):
     cv2.imwrite('./currentBoard.jpg', currentBoard)
     return currentBoard
 
+readImages()
 # cv2.imshow("board", drawBoard(["OOX", "X O", " XX"]))
 # cv2.waitKey(0)

@@ -1,5 +1,6 @@
 import discord
-from genImg import drawBoard
+import requests
+from genImg import drawBoard, readImages, resetImages
 
 class Board:
     def __init__(self):
@@ -54,6 +55,9 @@ class Board:
     def removePlayer(self, player):
         if player in self.playersID:
             self.playersID.remove(player)
+            self.single = True
+            if len(self.playersID):
+                return f"<@{player.id}> left the game.\nSingle player mode activated."
             return f"<@{player.id}> left the game."
         return self.outputStr('no player')
 
@@ -81,17 +85,25 @@ class Board:
         y_pos = 2 - pos // self.size
         out = ''
         nextPlayer = ''
+
         if self.board[y_pos][x_pos] == ' ':
             self.board[y_pos][x_pos] = self.players[self.turn]
             self.turn = 1 - self.turn
             winner = self.winCheck()
             out = f"Playing move {pos+1}\n"
+            drawBoard(self.board)
             # winner or draw check
             if winner or sum([sum([ele!=' ' for ele in row]) for row in self.board])==9:
                 self.started = False
                 out += '\nGame Ended\n'
                 if winner:
-                    out += f"<@{self.playersID[self.players.index(winner)].id}> won the game 🥳"
+                    if self.single:
+                        if self.players.index(winner)==0:
+                            out += f"<@{self.playersID[0].id}> won the game 🥳"
+                        else:
+                            out += f"AI won the game!"
+                    else:
+                        out += f"<@{self.playersID[self.players.index(winner)].id}> won the game 🥳"
                 else:
                     out += f"It was a draw!"
                 self.turn = 0
@@ -103,7 +115,6 @@ class Board:
             if not self.single:
                 nextPlayer = f"<@{self.playersID[self.turn].id}>'s turn to play."
 
-        drawBoard(self.board)
         embed = discord.Embed(
             title="Place",
             colour=discord.Colour.blurple(),
@@ -150,14 +161,14 @@ class Board:
         for i, player in enumerate(self.playersID):
             out += f'**{self.players[i]}**: *{player.global_name}*\n'
 
-        output = self.getBoardString()
+        # output = self.getBoardString()
         drawBoard(self.board)
         # if self.playersID:
         #     output += f"```\n**{self.playersID[self.turn].global_name}'s** turn to play for {self.players[self.turn]}"
         embed = discord.Embed(
             title='Game',
             colour=[discord.Colour.red(), discord.Colour.yellow(), discord.Colour.blurple()][len(self.playersID)],
-            description='**Mode**: '+['singleplayer', 'multiplayer'][self.single]
+            description='**Mode**: '+['multiplayer', 'singleplayer'][self.single]
         )
         embed.set_image(url="attachment://currentBoard.jpg")
         # embed.add_field(name='Board', value=output, inline=True)
@@ -181,7 +192,52 @@ class Board:
         embed.set_image(url="attachment://currentBoard.jpg")
         return embed, True
 
-    # def move(self, )
+    def changeBackground(self, message):
+        if not message.attachments: return discord.Embed(title="Error", description="No images provided", colour=discord.Colour.red())
+        filename = message.attachments[0].filename
+        if (
+            filename.endswith(".jpg")
+            or filename.endswith(".jpeg")
+            or filename.endswith(".png")
+        ):
+            background = requests.get(message.attachments[0].url)
+            open(f'./assets/Board.png', 'wb').write(background.content)
+            readImages()
+            return discord.Embed(title="Background Changed", description="Background image changed successfully.", colour=discord.Colour.blurple())
+        return discord.Embed(title="Error", description="Invalid Images", colour=discord.Colour.red())
+
+    def changeXImage(self, message):
+        if not message.attachments: return discord.Embed(title="Error", description="No images provided", colour=discord.Colour.red())
+        filename = message.attachments[0].filename
+        if (
+            filename.endswith(".jpg")
+            or filename.endswith(".jpeg")
+            or filename.endswith(".png")
+        ):
+            background = requests.get(message.attachments[0].url)
+            open(f'./assets/X.png', 'wb').write(background.content)
+            readImages()
+            return discord.Embed(title="X Image Changed", description="X image changed successfully.", colour=discord.Colour.blurple())
+        return discord.Embed(title="Error", description="Invalid Images", colour=discord.Colour.red())
+
+    def changeOImage(self, message):
+        if not message.attachments: return discord.Embed(title="Error", description="No images provided", colour=discord.Colour.red())
+        filename = message.attachments[0].filename
+        if (
+            filename.endswith(".jpg")
+            or filename.endswith(".jpeg")
+            or filename.endswith(".png")
+        ):
+            background = requests.get(message.attachments[0].url)
+            open(f'./assets/O.png', 'wb').write(background.content)
+            readImages()
+            return discord.Embed(title="O Image Changed", description="O image changed successfully.", colour=discord.Colour.blurple())
+        return discord.Embed(title="Error", description="Invalid Images", colour=discord.Colour.red())
+
+    def resetImages(self):
+        resetImages()        
+        return discord.Embed(title="Assets Resetted", description="All assets were changed to default.", colour=discord.Colour.blurple())
+
 
 
     """
