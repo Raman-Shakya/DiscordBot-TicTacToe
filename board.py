@@ -12,6 +12,14 @@ class Board:
         self.single = False
         self.started = False
 
+    """
+     ██████   █████  ███    ███ ███████     ███    ███  ██████  ██████  ███████ 
+    ██       ██   ██ ████  ████ ██          ████  ████ ██    ██ ██   ██ ██      
+    ██   ███ ███████ ██ ████ ██ █████       ██ ████ ██ ██    ██ ██   ██ █████   
+    ██    ██ ██   ██ ██  ██  ██ ██          ██  ██  ██ ██    ██ ██   ██ ██      
+     ██████  ██   ██ ██      ██ ███████     ██      ██  ██████  ██████  ███████ 
+    """
+
     def modeSingle(self):
         if self.started: return discord.Embed(title="Game Mode", description="Cannot change mode after the game has started.", colour=discord.Colour.red())
         self.single = True
@@ -22,6 +30,7 @@ class Board:
         self.single = False
         return discord.Embed(title="Game Mode", description="Game mode set to multi player.", colour=discord.Colour.blurple())
     
+
     """                                                                                                    
     ██████  ██       █████  ██    ██ ███████ ██████       ██████  ██████  ███    ██ ███████ ██  ██████  
     ██   ██ ██      ██   ██  ██  ██  ██      ██   ██     ██      ██    ██ ████   ██ ██      ██ ██       
@@ -52,6 +61,7 @@ class Board:
         self.playersID.append(player)
         return self.outputStr('added player', player)
     
+
     def removePlayer(self, player):
         if player in self.playersID:
             self.playersID.remove(player)
@@ -60,6 +70,8 @@ class Board:
                 return f"<@{player.id}> left the game.\nSingle player mode activated."
             return f"<@{player.id}> left the game."
         return self.outputStr('no player')
+
+
 
     """
      ██████   █████  ███    ███ ███████     ██       ██████   ██████  ██  ██████ 
@@ -125,6 +137,7 @@ class Board:
             embed.add_field(name="Next", value=nextPlayer)
         return embed, True
     
+
     def winCheck(self):
         def rowCheck(row):
             return len(set(row))==1 and row[0]!=' '
@@ -144,7 +157,29 @@ class Board:
         if rowCheck(sDiag): return sDiag[0]
         return False
 
-        
+
+    def resetBoard(self):
+        self.board = [[' ' for i in range(self.size)] for j in range(self.size)]
+
+
+    def reset(self, author):
+        if not author in self.playersID:
+            return discord.Embed(title="Not Permitted", description=f"<@{author.id}> is not a player.", colour=discord.Colour.red()), False
+        self.resetBoard()
+        drawBoard(self.board)
+        embed = discord.Embed(title="Board", description=f"<@{author.id}> resetted the board.", colour=discord.Colour.blurple())
+        embed.set_image(url="attachment://currentBoard.jpg")
+        return embed, True
+
+
+
+    """
+     █████  ██████  ██████  ███████  █████  ██████   █████  ███    ██  ██████ ███████ 
+    ██   ██ ██   ██ ██   ██ ██      ██   ██ ██   ██ ██   ██ ████   ██ ██      ██      
+    ███████ ██████  ██████  █████   ███████ ██████  ███████ ██ ██  ██ ██      █████   
+    ██   ██ ██      ██      ██      ██   ██ ██   ██ ██   ██ ██  ██ ██ ██      ██      
+    ██   ██ ██      ██      ███████ ██   ██ ██   ██ ██   ██ ██   ████  ██████ ███████                                                                                 
+    """
         
     def getBoardString(self):
         output = "```\n"
@@ -161,7 +196,6 @@ class Board:
         for i, player in enumerate(self.playersID):
             out += f'**{self.players[i]}**: *{player.global_name}*\n'
 
-        # output = self.getBoardString()
         drawBoard(self.board)
         # if self.playersID:
         #     output += f"```\n**{self.playersID[self.turn].global_name}'s** turn to play for {self.players[self.turn]}"
@@ -179,18 +213,7 @@ class Board:
             else:
                 embed.set_footer(text=f"{self.playersID[self.turn].display_name}'s turn")
         return embed
-    
-    def resetBoard(self):
-        self.board = [[' ' for i in range(self.size)] for j in range(self.size)]
 
-    def reset(self, author):
-        if not author in self.playersID:
-            return discord.Embed(title="Not Permitted", description=f"<@{author.id}> is not a player.", colour=discord.Colour.red()), False
-        self.resetBoard()
-        drawBoard(self.board)
-        embed = discord.Embed(title="Board", description=f"<@{author.id}> resetted the board.", colour=discord.Colour.blurple())
-        embed.set_image(url="attachment://currentBoard.jpg")
-        return embed, True
 
     def changeBackground(self, message):
         if not message.attachments: return discord.Embed(title="Error", description="No images provided", colour=discord.Colour.red())
@@ -206,6 +229,7 @@ class Board:
             return discord.Embed(title="Background Changed", description="Background image changed successfully.", colour=discord.Colour.blurple())
         return discord.Embed(title="Error", description="Invalid Images", colour=discord.Colour.red())
 
+
     def changeXImage(self, message):
         if not message.attachments: return discord.Embed(title="Error", description="No images provided", colour=discord.Colour.red())
         filename = message.attachments[0].filename
@@ -220,6 +244,7 @@ class Board:
             return discord.Embed(title="X Image Changed", description="X image changed successfully.", colour=discord.Colour.blurple())
         return discord.Embed(title="Error", description="Invalid Images", colour=discord.Colour.red())
 
+
     def changeOImage(self, message):
         if not message.attachments: return discord.Embed(title="Error", description="No images provided", colour=discord.Colour.red())
         filename = message.attachments[0].filename
@@ -233,6 +258,7 @@ class Board:
             readImages()
             return discord.Embed(title="O Image Changed", description="O image changed successfully.", colour=discord.Colour.blurple())
         return discord.Embed(title="Error", description="Invalid Images", colour=discord.Colour.red())
+
 
     def resetImages(self):
         resetImages()        
@@ -256,7 +282,7 @@ class Board:
             case 'players filled': return f"Cannot accept more players."
             case 'player left': return f"Player left"
             case 'no player': return f"No player in the list."
-            case 'reset': return f"Board resetted\n{self.getBoardString()}"
+
 
     def help(self):
         out = """
