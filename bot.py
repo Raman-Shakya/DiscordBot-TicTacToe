@@ -1,10 +1,8 @@
-# This example requires the 'message_content' intent.
-
 import discord
 from board import Board
-import json
 from dotenv import load_dotenv
 import os
+from webserver import keep_alive
 
 load_dotenv()
 
@@ -85,5 +83,5 @@ async def on_message(message):
     # if message.content.startswith('$hello'):
     #     await message.channel.send('Hello!')
 
+keep_alive()
 client.run(os.getenv('TOKEN'))
-
