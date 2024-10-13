@@ -36,7 +36,7 @@ async def on_message(message):
         await message.channel.send(board.removePlayer(message.author))
 
     if message.content.startswith('place'):
-        embed, file = board.place(message.author, message.content.split()[1])
+        embed, file = board.place(message.author, message.content)
         if file:
             await message.channel.send(embed=embed, file=discord.File("./currentBoard.jpg"))
         else:
@@ -60,6 +60,9 @@ async def on_message(message):
 
     if message.content == 'mode multi':
         await message.channel.send(embed=board.modeMulti())
+
+    if message.content.startswith('difficulty'):
+        await message.channel.send(embed=board.changeDifficulty(message.content))
 
     if message.content == 'help':
         await message.channel.send(embed=board.help())

@@ -10,6 +10,7 @@ class Board:
         self.turn = 0
         self.playersID = []
         self.single = False
+        self.difficulty = 9
         self.started = False
 
     """
@@ -30,6 +31,16 @@ class Board:
         self.single = False
         return discord.Embed(title="Game Mode", description="Game mode set to multi player.", colour=discord.Colour.blurple())
     
+    def changeDifficulty(self, message):
+        messageValue = message.split()
+        if len(messageValue) != 2 or not messageValue[1].isnumeric():
+            return discord.Embed(title='Error', description="Invalid difficulty", colour=discord.Colour.red())
+        difficulty = int(messageValue[1])
+        if difficulty <1 or difficulty > 9: return "Error: Invalid difficulty"
+        self.difficulty = difficulty
+        return discord.Embed(title='Difficulty', description=f"Difficulty set to {difficulty}", colour=discord.Colour.blurple())
+        
+
 
     """                                                                                                    
     ██████  ██       █████  ██    ██ ███████ ██████       ██████  ██████  ███    ██ ███████ ██  ██████  
@@ -59,6 +70,7 @@ class Board:
         if player in self.playersID: return self.outputStr('player already added')
         if len(self.playersID) == 2: return self.outputStr('players filled')
         self.playersID.append(player)
+        self.single = bool(len(self.playersID)==1)
         return self.outputStr('added player', player)
     
 
@@ -81,7 +93,9 @@ class Board:
      ██████  ██   ██ ██      ██ ███████     ███████  ██████   ██████  ██  ██████ 
     """
 
-    def place(self, author, pos):
+    def place(self, author, message):
+        inputArray = message.split()
+        if len(inputArray) != 2 or not inputArray[1].isnumeric(): return discord.Embed(title='Error', description="Invalid command", colour=discord.Colour.red()), False
         if not pos.isnumeric(): return discord.Embed(title='Error', description="Invalid move", colour=discord.Colour.red()), False
         if int(pos) < 0 or int(pos) >= 10: return discord.Embed(title='Error', description="Invalid move", colour=discord.Colour.red()), False
         
@@ -100,17 +114,27 @@ class Board:
 
         if self.board[y_pos][x_pos] == ' ':
             self.board[y_pos][x_pos] = self.players[self.turn]
-            self.turn = 1 - self.turn
             winner = self.winCheck()
+
+            if not winner:
+                if self.single:
+                    self.playAI()
+                    winner = self.winCheck()
+                    self.turn = 1 - self.turn
+            self.turn = 1 - self.turn
+                    
+
             out = f"Playing move {pos+1}\n"
             drawBoard(self.board)
             # winner or draw check
-            if winner or sum([sum([ele!=' ' for ele in row]) for row in self.board])==9:
+            if winner:
                 self.started = False
                 out += '\nGame Ended\n'
                 if winner:
                     if self.single:
-                        if self.players.index(winner)==0:
+                        if winner == True:
+                            out += "It was a draw!"
+                        elif self.players.index(winner)==0:
                             out += f"<@{self.playersID[0].id}> won the game 🥳"
                         else:
                             out += f"AI won the game!"
@@ -155,8 +179,61 @@ class Board:
             if rowCheck(col): return col[0]
         if rowCheck(pDiag): return pDiag[0]
         if rowCheck(sDiag): return sDiag[0]
-        return False
+        return sum([sum([ele!=' ' for ele in row]) for row in self.board])==9  # draw case
 
+
+    """
+     █████  ██ 
+    ██   ██ ██ 
+    ███████ ██ 
+    ██   ██ ██ 
+    ██   ██ ██         
+    """
+    def playAI(self):
+        bestScore = float('inf')
+        bestPos = [None, None]
+        for i in range(self.size):
+            for j in range(self.size):
+                if self.board[i][j] == ' ':
+                    self.board[i][j] = 'O'
+                    score = self.minimax(False)
+                    if score < bestScore:
+                        bestScore = score
+                        bestPos = [i, j]
+                    self.board[i][j] = ' '
+        self.board[bestPos[0]][bestPos[1]] = 'O'
+
+    def minimax(self, ai=True, depth=0):
+        if depth==self.difficulty: return 0
+        winner = self.winCheck()
+        if winner == 'O': return -1
+        elif winner == 'X': return 1
+        elif winner: return 0
+
+        minScore = float('inf')
+        maxScore = -float('inf')
+        for i in range(self.size):
+            for j in range(self.size):
+                if self.board[i][j] != ' ': continue
+
+                self.board[i][j] = 'XO'[ai] # play move
+                score = self.minimax(not ai, depth+1)
+                self.board[i][j] = ' '
+
+                if score < minScore:
+                    minScore = score
+                if score > maxScore:
+                    maxScore = score
+        return [maxScore, minScore][ai]
+
+
+    """
+    ██████  ███████ ███████ ███████ ████████ 
+    ██   ██ ██      ██      ██         ██    
+    ██████  █████   ███████ █████      ██    
+    ██   ██ ██           ██ ██         ██    
+    ██   ██ ███████ ███████ ███████    ██    
+    """
 
     def resetBoard(self):
         self.board = [[' ' for i in range(self.size)] for j in range(self.size)]
@@ -203,6 +280,7 @@ class Board:
             title='Game',
             colour=[discord.Colour.red(), discord.Colour.yellow(), discord.Colour.blurple()][len(self.playersID)],
             description='**Mode**: '+['multiplayer', 'singleplayer'][self.single]
+                        + "\n**Difficulty**: " + str(self.difficulty) 
         )
         embed.set_image(url="attachment://currentBoard.jpg")
         # embed.add_field(name='Board', value=output, inline=True)
