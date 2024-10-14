@@ -41,8 +41,14 @@
 
 4. Run the `main.py` file to start the bot, you should see the bot in the server active after running the code.
 
+---
+
 ## Help Command
-* use `help` command to list all the commands available in the bot.
+* Use `help` command to list all the commands available in the bot.
+* The positions are mapped accordingly.\
+    <img src=./readmeAssets/helpBoard.jpg width=300>
+
+---
 
 ## BOT Modes
 There are two modes of the bot
@@ -55,40 +61,41 @@ Type `mode single` to switch to single player mode\
 <img src=./readmeAssets/singleDemo.png width=300px>
 > you can also set difficulty level from 1 to 9 using `difficulty` command
 
-
 ### Multi Player
-Here, two players can play the game, first player is assigned to play for `X` and the second player is assigned to play for `O`. The turns alternate in standard Tic-Tac-Toe Game.\
+<p>Here, two players can play the game, first player is assigned to play for `X` and the second player is assigned to play for `O`. The turns alternate in standard Tic-Tac-Toe Game.</p>
 Type `mode multi` to switch to multi player mode.
 <img src=./readmeAssets/multiDemo.png width=300px>
+
 ---
 
 ## Player Setup
 * To play the game players should type the `play` command first.
-<img src=./readmeAssets/playDemo.png width=300px>
+    <img src=./readmeAssets/playDemo.png width=300px>
 * Players can exit the game by typing the `exit` command.
-<img src=./readmeAssets/exitDemo.png width=300px>
+    <img src=./readmeAssets/exitDemo.png width=300px>
 * If the game hasn't started yet, the modes are automatically selected when players enter the game.
 
 ---
 
 ## Game Play
-* Game is played using the `place` command followed by the position given by
-<img src=./readmeAssets/helpBoard.jpg width=200px><img src=./readmeAssets/placeDemo.png width=300px>
-* Use the `reset` command to reset the game.
-<img src=./readmeAssets/resetDemo.png width=300px>
+* Game is played using the `place` command followed by the position given by\
+    <img src=./readmeAssets/placeDemo.png width=300px>
+* Use the `reset` command to reset the game.\
+    <img src=./readmeAssets/resetDemo.png width=300px>
+
 ---
 
 ## Appearance
 * Use `show` command to show the current state of the game.
-<img src=./readmeAssets/showDemo.png width=300px>
+    <img src=./readmeAssets/showDemo.png width=300px>
 * Use `change background` command with attached background image to change the background of the board.
-<img src=./readmeAssets/changeBackgroundDemo.png width=300px>
-* Use `change x` command with attached image for `X` to change the image for `X`.
-<img src=./readmeAssets/changeXDemo.png width=300px>
-* Use `change o` command with attached image for `O` to change the image for `O`.
-<img src=./readmeAssets/changeODemo.png width=300px>
+    <img src=./readmeAssets/changeBackgroundDemo.png width=300px>
+* Use `change X` command with attached image for `X` to change the image for `X`.
+    <img src=./readmeAssets/changeXDemo.png width=300px>
+* Use `change O` command with attached image for `O` to change the image for `O`.
+    <img src=./readmeAssets/changeODemo.png width=300px>
 * Use `reset images` to change all images to default image.
-<img src=./readmeAssets/resetImageDemo.png width=300px>
+    <img src=./readmeAssets/resetImageDemo.png width=300px>
 
 ---
 
