@@ -59,7 +59,7 @@ def drawBoard(board):
                 # overlay = cv2.addWeighted(currentBoard[i*SIZE//3:(i+1)*SIZE//3, j*SIZE//3:(j+1)*SIZE//3], 0.5, X, 0.5, -)
                 currentBoard[posI:posI+SIZE3, posJ:posJ+SIZE3] = putO(block)
                 pass
-    cv2.imwrite('./currentBoard.jpg', currentBoard)
+    cv2.imwrite('./tempAssets/currentBoard.jpg', currentBoard)
     return currentBoard
 
 
@@ -78,7 +78,7 @@ def drawHelp():
         cv2.putText(currentBoard, str(move), (int(i), int(j)), cv2.FONT_HERSHEY_SIMPLEX,
                    scale, color, 5, cv2.LINE_AA)
         
-    cv2.imwrite('./helpBoard.jpg', currentBoard)
+    cv2.imwrite('./tempAssets/helpBoard.jpg', currentBoard)
     return currentBoard
 
 

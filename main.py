@@ -1,8 +1,8 @@
 import discord
-from board import Board
+from scripts.board import Board
 from dotenv import load_dotenv
 import os
-from webserver import keep_alive
+from scripts.webserver import keep_alive
 
 load_dotenv()
 
@@ -53,7 +53,7 @@ async def on_message(message):
     if message.content.startswith('place'):
         embed, file = board.place(message.author, message.content)
         if file:
-            await message.channel.send(embed=embed, file=discord.File("./currentBoard.jpg"))
+            await message.channel.send(embed=embed, file=discord.File("./tempAssets/currentBoard.jpg"))
         else:
             await message.channel.send(embed=embed)
     
@@ -62,14 +62,14 @@ async def on_message(message):
     if message.content == 'reset':
         embed, file = board.reset(message.author)
         if file:
-            await message.channel.send(embed=embed, file=discord.File("./currentBoard.jpg"))
+            await message.channel.send(embed=embed, file=discord.File("./tempAssets/currentBoard.jpg"))
         else:
             await message.channel.send(embed=embed)
     
 
     # APPEARANCE
     if message.content == 'show':
-        await message.channel.send(embed=board.outputStr('show'), file=discord.File("./currentBoard.jpg"))
+        await message.channel.send(embed=board.outputStr('show'), file=discord.File("./tempAssets/currentBoard.jpg"))
 
     if message.content == 'change background':
         await message.channel.send(embed=board.changeBackground(message))
@@ -85,10 +85,11 @@ async def on_message(message):
 
     # HELP COMMAND    
     if message.content == 'help':
-        await message.channel.send(embed=board.help(), file=discord.File("./helpBoard.jpg"))
+        await message.channel.send(embed=board.help(), file=discord.File("./tempAssets/helpBoard.jpg"))
     # if message.content == 'help board':
     #     await message.channel.send(file=discord.File("./helpBoard.jpg"))
 
 
-keep_alive()                    # FOR WEB SERVER TO KEEP IT ONLINE (ONLY FOR DEPLOYMENT)
-client.run(os.getenv('TOKEN'))  # TO GET BOT TOKEN
+if __name__=="__main__":
+    keep_alive()                    # FOR WEB SERVER TO KEEP IT ONLINE (ONLY FOR DEPLOYMENT)
+    client.run(os.getenv('TOKEN'))  # TO GET BOT TOKEN

@@ -1,6 +1,6 @@
 import discord
 import requests
-from genImg import drawBoard, readImages, resetImages
+from scripts.genImg import drawBoard, readImages, resetImages
 
 class Board:
     def __init__(self):
