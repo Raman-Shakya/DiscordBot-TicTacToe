@@ -26,6 +26,7 @@ def readImages():
     if O.shape[2] == 4: O_alpha = O[:, :, 3] / 255.0
     else: O_alpha = np.ones(O_color.shape[:2], dtype=np.float32)
 
+    drawHelp()
 
 
 def resetImages():
@@ -61,6 +62,26 @@ def drawBoard(board):
     cv2.imwrite('./currentBoard.jpg', currentBoard)
     return currentBoard
 
+
+def drawHelp():
+    currentBoard = BOARD.copy()
+    avg = np.average(currentBoard, axis=(0, 1, 2))
+    if avg > 192:
+        color = (25, 25, 25)
+    else:
+        color = (230, 230, 230)
+    fontSize = 40
+    scale = SIZE3 / 40
+    for move in range(1, 10):
+        i = (((move-1) % 3) + 0.5) * SIZE/3 - fontSize/2
+        j = ((2 - (move-1) // 3 + 0.5)) * SIZE / 3 + fontSize/2
+        cv2.putText(currentBoard, str(move), (int(i), int(j)), cv2.FONT_HERSHEY_SIMPLEX,
+                   scale, color, 5, cv2.LINE_AA)
+        
+    cv2.imwrite('./helpBoard.jpg', currentBoard)
+    return currentBoard
+
+
 readImages()
-# cv2.imshow("board", drawBoard(["OOX", "X O", " XX"]))
+# cv2.imshow("board", drawHelp())
 # cv2.waitKey(0)
