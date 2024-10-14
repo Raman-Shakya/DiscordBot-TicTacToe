@@ -85,7 +85,7 @@ async def on_message(message):
 
     # HELP COMMAND    
     if message.content == 'help':
-        await message.channel.send(embed=board.help())
+        await message.channel.send(embed=board.help(), file=discord.File("./helpBoard.jpg"))
     # if message.content == 'help board':
     #     await message.channel.send(file=discord.File("./helpBoard.jpg"))
 
