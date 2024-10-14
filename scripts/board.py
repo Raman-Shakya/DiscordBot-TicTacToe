@@ -382,20 +382,35 @@ class Board:
 
 
     def help(self):
-        out = """
-**Play**: Start playing the game
-**Exit**: Exit the game
-**Show**: Show board
-**Players**: Show players
-**Place**: Place your move
-**Mode multi**: Multiplayer
-**Mode single**: Play with bot
-**Reset**: Reset board
-        """
         embedded = discord.Embed(
             title="Help Commands",
             colour=[discord.Colour.red(), discord.Colour.yellow(), discord.Colour.blurple()][len(self.playersID)],
-            description=out
         )
-        # embedded.add_field(name="Play",value="Start the game")
+        embedded.add_field(name="Player Config",value="""
+`play`: Start playing the game
+`exit`: Exit the game
+`players`: Show players
+""", inline=False)
+        
+        embedded.add_field(name="Game Play",value="""
+`place`: Place your move from 1 to 9
+`show`: Show current game state
+`reset`: Reset the game state
+""", inline=False)
+        
+        embedded.add_field(name="Game Mode",value="""
+`mode multi`: Play with other players
+`mode single`: Play with AI bot
+`difficulty`: Set difficulty from 1 to 9
+""", inline=False)
+        
+        embedded.add_field(name="Personalize",value="""
+`change background`: Change the background of board
+`change X`: Change image for X
+`change O`: Change image for O
+`reset images`: Reset all images to default
+""", inline=False)
+        
+        embedded.set_image(url="attachment://helpBoard.jpg")
+        embedded.set_footer(text="Move placement")
         return embedded

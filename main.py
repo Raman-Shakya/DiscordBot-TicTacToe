@@ -45,7 +45,7 @@ async def on_message(message):
     if message.content == 'play':
         await message.channel.send(board.setPlayer(message.author))
     
-    if message.content.startswith('exit'):
+    if message.content == 'exit':
         await message.channel.send(board.removePlayer(message.author))
 
 
