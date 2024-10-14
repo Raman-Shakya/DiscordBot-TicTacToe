@@ -78,6 +78,7 @@ class Board:
         if player in self.playersID:
             self.playersID.remove(player)
             self.single = True
+            self.resetBoard()
             if len(self.playersID):
                 return f"<@{player.id}> left the game.\nSingle player mode activated."
             return f"<@{player.id}> left the game."
@@ -95,61 +96,75 @@ class Board:
 
     def place(self, author, message):
         inputArray = message.split()
-        if len(inputArray) != 2 or not inputArray[1].isnumeric(): return discord.Embed(title='Error', description="Invalid command", colour=discord.Colour.red()), False
-        if not pos.isnumeric(): return discord.Embed(title='Error', description="Invalid move", colour=discord.Colour.red()), False
-        if int(pos) < 0 or int(pos) >= 10: return discord.Embed(title='Error', description="Invalid move", colour=discord.Colour.red()), False
+        # input validation
+        if len(inputArray) != 2 or not inputArray[1].isnumeric():
+            return discord.Embed(title='Error', description="Invalid command", colour=discord.Colour.red()), False
+        pos = inputArray[1] # position from command
+        if int(pos) < 0 or int(pos) >= 10:
+            return discord.Embed(title='Error', description="Invalid move", colour=discord.Colour.red()), False
         
+        # multi player turn validation
         if not self.single:
             if len(self.playersID) != 2: return discord.Embed(title='Error', description="Players not selected.", colour=discord.Colour.red()), False
             if author != self.playersID[self.turn]: return discord.Embed(title='Error', description="Not your turn", colour=discord.Colour.red()), False
 
+        # start flag
         if not self.started:
             self.started = True
 
+        # position to 2d index
         pos = int(pos) - 1
         x_pos = pos % self.size
         y_pos = 2 - pos // self.size
+
         out = ''
         nextPlayer = ''
 
-        if self.board[y_pos][x_pos] == ' ':
-            self.board[y_pos][x_pos] = self.players[self.turn]
-            winner = self.winCheck()
+        # unavailable spot
+        if self.board[y_pos][x_pos] != ' ':
+            return discord.Embed(title="Invalid Move", description="The spot has already been occupied, try another spot", colour=discord.Colour.red()), False
 
-            if not winner:
-                if self.single:
-                    self.playAI()
-                    winner = self.winCheck()
-                    self.turn = 1 - self.turn
-            self.turn = 1 - self.turn
-                    
+        # available spot
+        self.board[y_pos][x_pos] = self.players[self.turn]  # play move
+        winner = self.winCheck()    # check if current state is winner
 
-            out = f"Playing move {pos+1}\n"
-            drawBoard(self.board)
-            # winner or draw check
-            if winner:
-                self.started = False
-                out += '\nGame Ended\n'
-                if winner:
-                    if self.single:
-                        if winner == True:
-                            out += "It was a draw!"
-                        elif self.players.index(winner)==0:
-                            out += f"<@{self.playersID[0].id}> won the game 🥳"
-                        else:
-                            out += f"AI won the game!"
-                    else:
-                        out += f"<@{self.playersID[self.players.index(winner)].id}> won the game 🥳"
+        out = f"Playing move {pos+1}\n"
+        # if game hasn't ended and singleplayer mode, play AI
+        if not winner:
+            if self.single:
+                move = self.playAI()
+                winner = self.winCheck()
+                self.turn = 1 - self.turn
+                out += f"and *AI* played {move}\n"
+        self.turn = 1 - self.turn
+
+        # draw board after all moves
+        drawBoard(self.board)
+
+        # winner or draw check
+        if winner:
+            out += '\n**Game Ended**\n'
+
+            # output handler for single player mode
+            if self.single:
+                if winner == True:
+                    out += "It was a draw!"
+                elif self.players.index(winner)==0:
+                    out += f"<@{self.playersID[0].id}> won the game 🥳"
                 else:
-                    out += f"It was a draw!"
-                self.turn = 0
-                self.resetBoard()
-            elif not self.single:
-                nextPlayer = f"<@{self.playersID[self.turn].id}>'s turn to play."
-        else:
-            out = "place occupied"
-            if not self.single:
-                nextPlayer = f"<@{self.playersID[self.turn].id}>'s turn to play."
+                    out += f"AI won the game!"
+
+            # output handler for multiplayer mode
+            else:
+                out += f"<@{self.playersID[self.players.index(winner)].id}> won the game 🥳"
+
+            # reset the board
+            self.resetBoard()
+
+        # multiplayer game not ended yet case
+        elif not self.single:
+            nextPlayer = f"<@{self.playersID[self.turn].id}>'s turn to play."
+
 
         embed = discord.Embed(
             title="Place",
@@ -190,24 +205,27 @@ class Board:
     ██   ██ ██         
     """
     def playAI(self):
+        # trackers
         bestScore = float('inf')
         bestPos = [None, None]
+        # play each possible move, and save the best
         for i in range(self.size):
             for j in range(self.size):
                 if self.board[i][j] == ' ':
-                    self.board[i][j] = 'O'
+                    self.board[i][j] = self.players[1]
                     score = self.minimax(False)
                     if score < bestScore:
                         bestScore = score
                         bestPos = [i, j]
-                    self.board[i][j] = ' '
-        self.board[bestPos[0]][bestPos[1]] = 'O'
+                    self.board[i][j] = ' '  # undo move
+        self.board[bestPos[0]][bestPos[1]] = self.players[1]
+        return (2-bestPos[0])*3 + bestPos[1] + 1
 
     def minimax(self, ai=True, depth=0):
         if depth==self.difficulty: return 0
         winner = self.winCheck()
-        if winner == 'O': return -1
-        elif winner == 'X': return 1
+        if winner == self.players[1]: return -1
+        elif winner == self.players[0]: return 1
         elif winner: return 0
 
         minScore = float('inf')
@@ -216,7 +234,7 @@ class Board:
             for j in range(self.size):
                 if self.board[i][j] != ' ': continue
 
-                self.board[i][j] = 'XO'[ai] # play move
+                self.board[i][j] = self.players[ai] # play move
                 score = self.minimax(not ai, depth+1)
                 self.board[i][j] = ' '
 
@@ -237,6 +255,8 @@ class Board:
 
     def resetBoard(self):
         self.board = [[' ' for i in range(self.size)] for j in range(self.size)]
+        self.turn = 0
+        self.started = False
 
 
     def reset(self, author):
@@ -256,8 +276,7 @@ class Board:
     ███████ ██████  ██████  █████   ███████ ██████  ███████ ██ ██  ██ ██      █████   
     ██   ██ ██      ██      ██      ██   ██ ██   ██ ██   ██ ██  ██ ██ ██      ██      
     ██   ██ ██      ██      ███████ ██   ██ ██   ██ ██   ██ ██   ████  ██████ ███████                                                                                 
-    """
-        
+    """    
     def getBoardString(self):
         output = "```\n"
         for i in range(self.size):

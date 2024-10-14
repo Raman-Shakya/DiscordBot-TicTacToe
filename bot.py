@@ -23,38 +23,10 @@ async def on_message(message):
     if message.author == client.user:
         return
 
+    # handle different case words
     message.content = message.content.lower()
 
-    if message.content == 'play':
-        await message.channel.send(board.setPlayer(message.author))
-    
-    if message.content == 'players':
-        # await message.channel.send(board.showPlayers())
-        await message.channel.send(embed=board.showPlayers())
-
-    if message.content.startswith('exit'):
-        await message.channel.send(board.removePlayer(message.author))
-
-    if message.content.startswith('place'):
-        embed, file = board.place(message.author, message.content)
-        if file:
-            await message.channel.send(embed=embed, file=discord.File("./currentBoard.jpg"))
-        else:
-            await message.channel.send(embed=embed)
-    
-    if message.content == 'show':
-        await message.channel.send(embed=board.outputStr('show'), file=discord.File("./currentBoard.jpg"))
-
-    if message.content.startswith('config'):
-        await message.channel.send(message.author)
-
-    if message.content == 'reset':
-        embed, file = board.reset(message.author)
-        if file:
-            await message.channel.send(embed=embed, file=discord.File("./currentBoard.jpg"))
-        else:
-            await message.channel.send(embed=embed)
-        
+    # GAME MODE
     if message.content == 'mode single':
         await message.channel.send(embed=board.modeSingle())
 
@@ -64,11 +36,40 @@ async def on_message(message):
     if message.content.startswith('difficulty'):
         await message.channel.send(embed=board.changeDifficulty(message.content))
 
-    if message.content == 'help':
-        await message.channel.send(embed=board.help())
+
+    # PLAYER CONFIG
+    if message.content == 'players':
+        # await message.channel.send(board.showPlayers())
+        await message.channel.send(embed=board.showPlayers())
+
+    if message.content == 'play':
+        await message.channel.send(board.setPlayer(message.author))
     
-    if message.content == "imagetest":
-        await board.imageTest(message)
+    if message.content.startswith('exit'):
+        await message.channel.send(board.removePlayer(message.author))
+
+
+    # GAME LOGIC / GAME PLAY
+    if message.content.startswith('place'):
+        embed, file = board.place(message.author, message.content)
+        if file:
+            await message.channel.send(embed=embed, file=discord.File("./currentBoard.jpg"))
+        else:
+            await message.channel.send(embed=embed)
+    
+    
+    # RESET
+    if message.content == 'reset':
+        embed, file = board.reset(message.author)
+        if file:
+            await message.channel.send(embed=embed, file=discord.File("./currentBoard.jpg"))
+        else:
+            await message.channel.send(embed=embed)
+    
+
+    # APPEARANCE
+    if message.content == 'show':
+        await message.channel.send(embed=board.outputStr('show'), file=discord.File("./currentBoard.jpg"))
 
     if message.content == 'change background':
         await message.channel.send(embed=board.changeBackground(message))
@@ -82,9 +83,10 @@ async def on_message(message):
     if message.content == 'reset images':
         await message.channel.send(embed=board.resetImages())
 
+    # HELP COMMAND    
+    if message.content == 'help':
+        await message.channel.send(embed=board.help())
 
-    # if message.content.startswith('$hello'):
-    #     await message.channel.send('Hello!')
 
-keep_alive()
-client.run(os.getenv('TOKEN'))
+keep_alive()                    # FOR WEB SERVER TO KEEP IT ONLINE (ONLY FOR DEPLOYMENT)
+client.run(os.getenv('TOKEN'))  # TO GET BOT TOKEN
