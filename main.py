@@ -1,7 +1,8 @@
 import discord
-from scripts.board import Board
+from discord.ext import commands
 from dotenv import load_dotenv
 import os
+from scripts.board import Board
 from scripts.webserver import keep_alive
 
 load_dotenv()
@@ -16,6 +17,7 @@ board = Board()
 
 @client.event
 async def on_ready():
+    await client.change_presence(activity=discord.Game(name="help"), status=discord.Status.idle)
     print(f'We have logged in as {client.user}')
 
 @client.event
