@@ -1,9 +1,11 @@
 import discord
 import requests
+import os
 from scripts.genImg import drawBoard, readImages, resetImages
 
 class Board:
-    def __init__(self):
+    def __init__(self, id):
+        self.id = id
         self.size = 3
         self.board = [[' ' for i in range(self.size)] for j in range(self.size)]
         self.players = 'XO'
@@ -12,6 +14,13 @@ class Board:
         self.single = False
         self.difficulty = 9
         self.started = False
+        self.createFilePath()
+
+    def createFilePath(self):
+        try:
+            os.mkdir(f'tempAssets/{self.id}')
+        except FileExistsError:
+            pass
 
     """
      ██████   █████  ███    ███ ███████     ███    ███  ██████  ██████  ███████ 
@@ -139,7 +148,7 @@ class Board:
         self.turn = 1 - self.turn
 
         # draw board after all moves
-        drawBoard(self.board)
+        drawBoard(self.board, self.id)
 
         # winner or draw check
         if winner:
@@ -156,7 +165,10 @@ class Board:
 
             # output handler for multiplayer mode
             else:
-                out += f"<@{self.playersID[self.players.index(winner)].id}> won the game 🥳"
+                if winner == True:
+                    out += "It was a draw!"
+                else:
+                    out += f"<@{self.playersID[self.players.index(winner)].id}> won the game 🥳"
 
             # reset the board
             self.resetBoard()
@@ -263,7 +275,7 @@ class Board:
         if not author in self.playersID:
             return discord.Embed(title="Not Permitted", description=f"<@{author.id}> is not a player.", colour=discord.Colour.red()), False
         self.resetBoard()
-        drawBoard(self.board)
+        drawBoard(self.board, self.id)
         embed = discord.Embed(title="Board", description=f"<@{author.id}> resetted the board.", colour=discord.Colour.blurple())
         embed.set_image(url="attachment://currentBoard.jpg")
         return embed, True
@@ -292,7 +304,7 @@ class Board:
         for i, player in enumerate(self.playersID):
             out += f'**{self.players[i]}**: *{player.global_name}*\n'
 
-        drawBoard(self.board)
+        drawBoard(self.board, self.id)
         # if self.playersID:
         #     output += f"```\n**{self.playersID[self.turn].global_name}'s** turn to play for {self.players[self.turn]}"
         embed = discord.Embed(

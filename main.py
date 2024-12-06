@@ -13,7 +13,8 @@ intents.message_content = True
 client = discord.Client(intents=intents)
 
 # master board
-board = Board()
+# board = Board()
+boards = {}
 
 @client.event
 async def on_ready():
@@ -27,6 +28,8 @@ async def on_message(message):
 
     # handle different case words
     message.content = message.content.lower()
+
+    board = selectBoard(message)
 
     # GAME MODE
     if message.content == 'mode single':
@@ -55,7 +58,7 @@ async def on_message(message):
     if message.content.startswith('place'):
         embed, file = board.place(message.author, message.content)
         if file:
-            await message.channel.send(embed=embed, file=discord.File("./tempAssets/currentBoard.jpg"))
+            await message.channel.send(embed=embed, file=discord.File(f"./tempAssets/{board.id}/currentBoard.jpg"))
         else:
             await message.channel.send(embed=embed)
     
@@ -64,14 +67,15 @@ async def on_message(message):
     if message.content == 'reset':
         embed, file = board.reset(message.author)
         if file:
-            await message.channel.send(embed=embed, file=discord.File("./tempAssets/currentBoard.jpg"))
+            await message.channel.send(embed=embed, file=discord.File(f"./tempAssets/{board.id}/currentBoard.jpg"))
         else:
             await message.channel.send(embed=embed)
     
 
     # APPEARANCE
     if message.content == 'show':
-        await message.channel.send(embed=board.outputStr('show'), file=discord.File("./tempAssets/currentBoard.jpg"))
+        selectBoard(message)
+        await message.channel.send(embed=board.outputStr('show'), file=discord.File(f"./tempAssets/{board.id}/currentBoard.jpg"))
 
     if message.content == 'change background':
         await message.channel.send(embed=board.changeBackground(message))
@@ -91,7 +95,14 @@ async def on_message(message):
     # if message.content == 'help board':
     #     await message.channel.send(file=discord.File("./helpBoard.jpg"))
 
+# message passing decorator
+def selectBoard(message):
+    channelId = message.channel.id
+    if channelId not in boards:
+        boards[channelId] = Board(channelId)
+
+    return boards[channelId]
 
 if __name__=="__main__":
-    keep_alive()                    # FOR WEB SERVER TO KEEP IT ONLINE (ONLY FOR DEPLOYMENT)
+    # keep_alive()                    # FOR WEB SERVER TO KEEP IT ONLINE (ONLY FOR DEPLOYMENT)
     client.run(os.getenv('TOKEN'))  # TO GET BOT TOKEN

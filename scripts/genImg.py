@@ -45,7 +45,7 @@ def putO(block):
         block[:, :, c] = block[:, :, c] * (1 - O_alpha) + O_color[:, :, c] * O_alpha
     return block
 
-def drawBoard(board):
+def drawBoard(board, id):
     currentBoard = BOARD.copy()
     for i in range(len(board)):
         for j in range(len(board[i])):
@@ -59,7 +59,7 @@ def drawBoard(board):
                 # overlay = cv2.addWeighted(currentBoard[i*SIZE//3:(i+1)*SIZE//3, j*SIZE//3:(j+1)*SIZE//3], 0.5, X, 0.5, -)
                 currentBoard[posI:posI+SIZE3, posJ:posJ+SIZE3] = putO(block)
                 pass
-    cv2.imwrite('./tempAssets/currentBoard.jpg', currentBoard)
+    cv2.imwrite(f'./tempAssets/{id}/currentBoard.jpg', currentBoard)
     return currentBoard
 
 
@@ -83,5 +83,6 @@ def drawHelp():
 
 
 readImages()
+drawHelp()
 # cv2.imshow("board", drawHelp())
 # cv2.waitKey(0)
